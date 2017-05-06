@@ -89,7 +89,7 @@ cbind(predDat, predict(hyp.out, type = "response",
 
 ##   Instead of doing all this ourselves, we can use the effects package to
 ##   compute quantities of interest for us (cf. the Zelig package).
-
+install.packages("effects")
 library(effects)
 plot(allEffects(hyp.out))
 
@@ -97,11 +97,21 @@ plot(allEffects(hyp.out))
 ## ───────────────────────────────────
 
 ##   Use the NH11 data set that we loaded earlier.
+natl.health.2011 <- NH11 <- readRDS("dataSets/NatHealth2011.rds")
+summary(natl.health.2011)
 
 ##   1. Use glm to conduct a logistic regression to predict ever worked
 ##      (everwrk) using age (age_p) and marital status (r_maritl).
+
+natl.health.2011.subset <- subset(NH11, select = c("everwrk", "age_p", "r_maritl"))
+summary(natl.health.2011.subset)
+natl.health.2011.new <- transform(natl.health.2011, everwrk = factor(everwrk, levels = c("1 Yes", "2 No")), r_maritl = droplevels(r_maritl))
+natl.health.2011.new.model <- glm(everwrk ~ age_p + r_maritl, data = natl.health.2011.new, family = "binomial")
+summary(natl.health.2011.new.model)
+
 ##   2. Predict the probability of working for each level of marital
 ##      status.
+data.frame(Effect("r_maritl", natl.health.2011.new.model))
 
 ##   Note that the data is not perfectly clean and ready to be modeled. You
 ##   will need to clean up at least some of the variables before fitting
